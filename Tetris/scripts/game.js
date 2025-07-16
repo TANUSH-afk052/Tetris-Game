@@ -117,7 +117,7 @@ function drawMatrix(matrix, offset, colorOverride, ctx = context) {
       if (value !== 0) {
         ctx.fillStyle = colorOverride || blockColors[value] || '#999'; // fallback to gray
         ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
-        ctx.strokeStyle = '#ffffff30'; // soft white outline
+        ctx.strokeStyle = '#ffffff30'; // soft white outline to be matching with the one give in css stylesheet
         ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
       }
     });
@@ -380,3 +380,4 @@ function update(time = 0) {
   draw();
   rafId = requestAnimationFrame(update);
 }
+
