@@ -341,6 +341,7 @@ canvas.addEventListener('touchend', (e) => {
 const startBtn = document.getElementById('startBtn');
 const pauseBtn = document.getElementById('pauseBtn');
 const resetBtn = document.getElementById('resetBtn');
+const dropBtn = document.getElementById('dropBtn');
 
 let isPaused = true;
 let rafId = null;
@@ -365,6 +366,13 @@ resetBtn.addEventListener('click', () => {
   resetPlayer();
   draw();
 });
+
+dropBtn.addEventListener('click', () => {
+  if (!isPaused) {
+    playerDrop();
+  }
+});
+
 
 // --- Override update to support pause ---
 function update(time = 0) {

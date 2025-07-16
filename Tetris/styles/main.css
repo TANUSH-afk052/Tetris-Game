@@ -127,4 +127,30 @@ footer {
     padding: 8px 15px;
   }
 }
-//basic styling and color formation
+.mobile-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+#dropBtn {
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #00c2d1;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #00c2d1;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#dropBtn:active {
+  background-color: #0099aa;
+}
+
+@media (min-width: 768px) {
+  .mobile-controls {
+    display: none;
+  }
+}
