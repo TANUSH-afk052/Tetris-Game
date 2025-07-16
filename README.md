@@ -24,3 +24,6 @@ A mobile-friendly, modern Tetris game built with vanilla JavaScript, HTML5 Canva
 - Swipe down → Drop
 - Tap → Rotate
 
+
+# Want To Play
+https://tanush-afk052.github.io/Tetris-Game/Tetris/index.html
