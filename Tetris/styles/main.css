@@ -1,0 +1,129 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #e0c3fc, #8ec5fc);
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+
+.container {
+  text-align: center;
+  padding: 20px;
+}
+
+/* Title */
+.title {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #00bcd4;
+  text-shadow: 0 0 10px #00bcd4;
+}
+
+.game-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+#tetris {
+  background: #f0f8ff; /* use this to change color of the playable panel*/
+  border: 4px solid #00e0ff;
+  box-shadow: 0 0 20px #00e0ff;
+  border-radius: 10px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 224, 255, 0.4);
+  backdrop-filter: blur(12px);
+}
+
+.score-board h2,
+.next-piece h2 {
+  margin-bottom: 5px;
+  color: #444;
+}
+
+#score {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #007acc;
+}
+
+
+#next {
+  background: #f0f8ff;
+  border: 2px solid #00e0ff;
+  box-shadow: 0 0 10px #00e0ff;
+  border-radius: 5px;
+}
+
+.controls button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background: #00e0ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  margin: 5px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 224, 255, 0.4);
+}
+
+.controls button:hover {
+  background: #00bcd4;
+  transform: scale(1.05);
+}
+
+
+footer {
+  margin-top: 25px;
+  font-size: 1rem;
+  color: #555;
+}
+
+
+@media (max-width: 600px) {
+  .game-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #tetris {
+    width: 180px;
+    height: 300px;
+  }
+
+  #next {
+    width: 60px;
+    height: 60px;
+  }
+
+  .title {
+    font-size: 2.2rem;
+  }
+
+  .controls button {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+  }
+}
