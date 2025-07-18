@@ -3,16 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tetris Game</title>
+  <title>Tetris Game - Mobile Compatible</title>
   <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
   <div class="container">
     <h1 class="title">Tetris</h1>
-    
     <div class="game-wrapper">
       <canvas id="tetris" width="240" height="400"></canvas>
-      
       <div class="sidebar">
         <div class="score-board">
           <h2>Score</h2>
@@ -26,24 +24,35 @@
           <button id="startBtn">Start</button>
           <button id="pauseBtn">Pause</button>
           <button id="resetBtn">Reset</button>
-          <div class="mobile-controls">
-            <button id="dropBtn">DROP</button>
-          </div>
         </div>
       </div>
     </div>
 
+    <div class="mobile-controls" id="mobileControls">
+      <div class="mobile-button-grid">
+        <button class="mobile-btn btn-left" id="mobileLeft">←</button>
+        <button class="mobile-btn btn-rotate" id="mobileRotate">↻</button>
+        <button class="mobile-btn btn-pause" id="mobilePause">⏸</button>
+        <button class="mobile-btn btn-right" id="mobileRight">→</button>
+        <button class="mobile-btn btn-drop" id="mobileDrop">↓ HARD DROP</button>
+        <button class="mobile-btn btn-lock-scroll" id="lockScrollBtn">🔓 UNLOCK SCROLL</button>
+      </div>
+    </div>
+
+    <div class="touch-hint" id="touchHint">
+      <h3>Mobile Controls Available!</h3>
+      <p>Use the buttons at the bottom or swipe on the game board</p>
+      <button onclick="hideTouchHint()">Got it!</button>
+    </div>
 
     <footer>
-      <p>Use Arrow Keys to Play</p>
-      <p>For Mobile Need to Swipe left to got left
-        right to go right and tap to change the block 
-        been working on speed drop will update later
-      
-      </p>
+      <p>Desktop: Use Arrow Keys to Play</p>
+      <p>Mobile: Use touch controls or swipe gestures</p>
+      <p>🔒 Lock Scroll: Prevents accidental page scrolling while playing(for mobile players)</p>
     </footer>
   </div>
 
   <script src="scripts/game.js"></script>
 </body>
 </html>
+
