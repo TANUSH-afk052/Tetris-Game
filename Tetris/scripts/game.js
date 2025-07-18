@@ -60,7 +60,6 @@ const tetrominoes = {
   ]
 };
 
-
 // Corresponding colors
 const blockColors = {
   1: '#FF595E', // red
@@ -72,16 +71,14 @@ const blockColors = {
   7: '#00C2D1'  // cyan
 };
 
-
 // Random Tetromino
 function randomTetromino() {
   const keys = Object.keys(tetrominoes);
   const type = keys[Math.floor(Math.random() * keys.length)];
   const matrix = tetrominoes[type];
 
-  // Get color ID from matrix (first non-zero value)
   const flat = matrix.flat();
-  const colorId = flat.find(v => v !== 0); // like 1, 2, 3...
+  const colorId = flat.find(v => v !== 0);
   const color = blockColors[colorId];
 
   return {
@@ -99,33 +96,33 @@ const player = {
   color: null,
   type: '',
   rotationIndex: 0,
-  next: randomTetromino() // ✅ Needed for next preview
+  next: randomTetromino()
 };
+
 // Main game state
 const arena = createMatrix(COLS, ROWS);
 let dropCounter = 0;
-let dropInterval = 1000; // ms
+let dropInterval = 1000;
 let lastTime = 0;
 let score = 0;
-
-// Player (current falling piece)
+let isPaused = true;
+let rafId = null;
 
 // Draw a matrix (block shape) on the canvas
 function drawMatrix(matrix, offset, colorOverride, ctx = context) {
   matrix.forEach((row, y) => {
     row.forEach((value, x) => {
       if (value !== 0) {
-        ctx.fillStyle = colorOverride || blockColors[value] || '#999'; // fallback to gray
+        ctx.fillStyle = colorOverride || blockColors[value] || '#999';
         ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
-        ctx.strokeStyle = '#ffffff30'; // soft white outline to be matching with the one give in css stylesheet
+        ctx.strokeStyle = '#ffffff30';
         ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
       }
     });
   });
 }
 
-
-// Merge the current piece into the arena (when it lands)
+// Merge the current piece into the arena
 function merge(arena, player) {
   player.matrix.forEach((row, y) => {
     row.forEach((value, x) => {
@@ -139,7 +136,7 @@ function merge(arena, player) {
 // Clear filled rows
 function sweepArena() {
   let lines = 0;
-  outer: for (let y = arena.length - 1; y >= 0; y--) {
+  for (let y = arena.length - 1; y >= 0; y--) {
     if (arena[y].every(cell => cell !== 0)) {
       const row = arena.splice(y, 1)[0].fill(0);
       arena.unshift(row);
@@ -171,7 +168,7 @@ function collide(arena, player) {
   return false;
 }
 
-// Player drop (falling step)
+// Player drop
 function playerDrop() {
   player.pos.y++;
   if (collide(arena, player)) {
@@ -183,6 +180,18 @@ function playerDrop() {
   dropCounter = 0;
 }
 
+// Hard drop - instantly drop to bottom
+function playerHardDrop() {
+  while (!collide(arena, player)) {
+    player.pos.y++;
+  }
+  player.pos.y--;
+  merge(arena, player);
+  resetPlayer();
+  sweepArena();
+  dropCounter = 0;
+}
+
 // Move player horizontally
 function playerMove(dir) {
   player.pos.x += dir;
@@ -190,6 +199,7 @@ function playerMove(dir) {
     player.pos.x -= dir;
   }
 }
+
 function rotateMatrix(matrix) {
   const size = matrix.length;
   const rotated = [];
@@ -222,7 +232,6 @@ function playerRotate() {
   }
 }
 
-
 // Reset to next piece
 function resetPlayer() {
   const next = player.next;
@@ -239,7 +248,8 @@ function resetPlayer() {
     arena.forEach(row => row.fill(0));
     score = 0;
     updateScore();
-    alert('Game Over!');
+    showGameOverPopup();
+    isPaused = true;
   }
 }
 
@@ -252,7 +262,7 @@ function draw() {
   drawMatrix(player.matrix, player.pos, player.color);
 }
 
-// Draw the next tetromino in small preview
+// Draw the next tetromino
 function drawNext() {
   nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
   drawMatrix(player.next.matrix, { x: 1, y: 1 }, player.next.color, nextCtx);
@@ -265,116 +275,10 @@ function updateScore() {
 
 // Increase speed based on score
 function increaseDifficulty() {
-  dropInterval = Math.max(200, 1000 - score * 5); // lower = faster
+  dropInterval = Math.max(200, 1000 - score * 5);
 }
 
 // Game loop
-function update(time = 0) {
-  const deltaTime = time - lastTime;
-  lastTime = time;
-
-  dropCounter += deltaTime;
-  if (dropCounter > dropInterval) {
-    playerDrop();
-  }
-
-  draw();
-  requestAnimationFrame(update);
-}
-// --- Controls (Keyboard) ---
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowLeft') {
-    playerMove(-1);
-  } else if (e.key === 'ArrowRight') {
-    playerMove(1);
-  } else if (e.key === 'ArrowDown') {
-    playerDrop();
-  } else if (e.key === 'ArrowUp' || e.key === ' ') {
-    playerRotate();
-  }
-});
-
-// --- Touch Controls (Swipe + Tap to rotate) ---
-let touchStartX = null;
-let touchStartY = null;
-
-canvas.addEventListener('touchstart', (e) => {
-  const touch = e.touches[0];
-  touchStartX = touch.clientX;
-  touchStartY = touch.clientY;
-});
-
-canvas.addEventListener('touchmove', (e) => {
-  if (!touchStartX || !touchStartY) return;
-
-  const touch = e.touches[0];
-  const deltaX = touch.clientX - touchStartX;
-  const deltaY = touch.clientY - touchStartY;
-
-  // Horizontal swipe
-  if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    if (deltaX > 30) {
-      playerMove(1);
-      touchStartX = null;
-    } else if (deltaX < -30) {
-      playerMove(-1);
-      touchStartX = null;
-    }
-  } else {
-    if (deltaY > 30) {
-      playerDrop();
-      touchStartY = null;
-    }
-  }
-});
-
-canvas.addEventListener('touchend', (e) => {
-  // Tap to rotate
-  if (touchStartX !== null && touchStartY !== null) {
-    playerRotate();
-  }
-  touchStartX = null;
-  touchStartY = null;
-});
-
-// --- UI Buttons ---
-const startBtn = document.getElementById('startBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const resetBtn = document.getElementById('resetBtn');
-const dropBtn = document.getElementById('dropBtn');
-
-let isPaused = true;
-let rafId = null;
-
-startBtn.addEventListener('click', () => {
-  if (isPaused) {
-    isPaused = false;
-    resetPlayer();
-    update();
-  }
-});
-
-pauseBtn.addEventListener('click', () => {
-  isPaused = true;
-  cancelAnimationFrame(rafId);
-});
-
-resetBtn.addEventListener('click', () => {
-  arena.forEach(row => row.fill(0));
-  score = 0;
-  updateScore();
-  resetPlayer();
-  draw();
-});
-
-dropBtn.addEventListener('click', () => {
-  if (!isPaused) {
-    playerDrop();
-  }
-});
-
-
-// --- Override update to support pause ---
 function update(time = 0) {
   if (isPaused) return;
   const deltaTime = time - lastTime;
@@ -389,3 +293,200 @@ function update(time = 0) {
   rafId = requestAnimationFrame(update);
 }
 
+// Keyboard Controls
+document.addEventListener('keydown', (e) => {
+  if (isPaused) return;
+  
+  if (e.key === 'ArrowLeft') {
+    playerMove(-1);
+  } else if (e.key === 'ArrowRight') {
+    playerMove(1);
+  } else if (e.key === 'ArrowDown') {
+    playerDrop();
+  } else if (e.key === 'ArrowUp' || e.key === ' ') {
+    playerRotate();
+  }
+});
+
+// Touch Controls
+let touchStartX = null;
+let touchStartY = null;
+let touchMoved = false;
+
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  touchMoved = false;
+});
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (!touchStartX || !touchStartY || isPaused) return;
+
+  const touch = e.touches[0];
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
+
+  if (Math.abs(deltaX) > 30 || Math.abs(deltaY) > 30) {
+    touchMoved = true;
+    
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX > 30) {
+        playerMove(1);
+        touchStartX = touch.clientX;
+      } else if (deltaX < -30) {
+        playerMove(-1);
+        touchStartX = touch.clientX;
+      }
+    } else {
+      if (deltaY > 30) {
+        playerDrop();
+        touchStartY = touch.clientY;
+      }
+    }
+  }
+});
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  if (!touchMoved && touchStartX !== null && touchStartY !== null && !isPaused) {
+    playerRotate();
+  }
+  touchStartX = null;
+  touchStartY = null;
+  touchMoved = false;
+});
+
+// UI Buttons
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+startBtn.addEventListener('click', () => {
+  if (isPaused) {
+    isPaused = false;
+    if (!player.matrix) {
+      resetPlayer();
+    }
+    update();
+  }
+});
+
+pauseBtn.addEventListener('click', () => {
+  isPaused = !isPaused;
+  pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+  if (isPaused) {
+    cancelAnimationFrame(rafId);
+  } else {
+    update();
+  }
+});
+
+resetBtn.addEventListener('click', () => {
+  arena.forEach(row => row.fill(0));
+  score = 0;
+  updateScore();
+  resetPlayer();
+  draw();
+  isPaused = true;
+  const pauseBtn = document.getElementById('pauseBtn');
+  pauseBtn.textContent = 'Pause';
+});
+
+// Mobile Controls
+document.getElementById('mobileLeft').addEventListener('click', () => {
+  if (!isPaused) playerMove(-1);
+});
+
+document.getElementById('mobileRight').addEventListener('click', () => {
+  if (!isPaused) playerMove(1);
+});
+
+document.getElementById('mobileRotate').addEventListener('click', () => {
+  if (!isPaused) playerRotate();
+});
+
+document.getElementById('mobileDrop').addEventListener('click', () => {
+  if (!isPaused) playerHardDrop();
+});
+
+document.getElementById('mobilePause').addEventListener('click', () => {
+  isPaused = !isPaused;
+  const pauseBtn = document.getElementById('pauseBtn');
+  pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+  if (isPaused) {
+    cancelAnimationFrame(rafId);
+  } else {
+    update();
+  }
+});
+
+// Lock Scroll Button
+let scrollLocked = false;
+const lockScrollBtn = document.getElementById('lockScrollBtn');
+
+lockScrollBtn.addEventListener('click', () => {
+  scrollLocked = !scrollLocked;
+  if (scrollLocked) {
+    document.body.classList.add('scroll-locked');
+    lockScrollBtn.textContent = '🔒 LOCKED SCROLL';
+    lockScrollBtn.classList.add('locked');
+  } else {
+    document.body.classList.remove('scroll-locked');
+    lockScrollBtn.textContent = '🔓 UNLOCK SCROLL';
+    lockScrollBtn.classList.remove('locked');
+  }
+});
+
+// Prevent scrolling when locked
+document.addEventListener('touchmove', (e) => {
+  if (scrollLocked) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Touch hint
+function showTouchHint() {
+  if (window.innerWidth <= 768) {
+    document.getElementById('touchHint').classList.add('show');
+  }
+}
+
+function hideTouchHint() {
+  document.getElementById('touchHint').classList.remove('show');
+}
+
+function showGameOverPopup() {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <h2>Game Over!</h2>
+    <p>Score: ${score}</p>
+    <button onclick="location.reload()">Restart</button>
+  `;
+  div.style = `
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px 30px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    border-radius: 12px;
+    text-align: center;
+    z-index: 10000;
+    font-family: sans-serif;
+  `;
+  document.body.appendChild(div);
+}
+
+// Initialize
+resetPlayer();
+draw();
+drawNext();
+
+// Show touch hint on mobile
+window.addEventListener('load', () => {
+  setTimeout(showTouchHint, 1000);
+});
