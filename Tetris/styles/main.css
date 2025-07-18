@@ -12,15 +12,23 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  user-select: none;
+  overflow-x: hidden;
 }
 
+body.scroll-locked {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
 
 .container {
   text-align: center;
   padding: 20px;
+  max-width: 100vw;
 }
 
-/* Title */
 .title {
   font-size: 3rem;
   margin-bottom: 20px;
@@ -37,10 +45,11 @@ body {
 }
 
 #tetris {
-  background: #f0f8ff; /* use this to change color of the playable panel*/
+  background: #f0f8ff;
   border: 4px solid #00e0ff;
   box-shadow: 0 0 20px #00e0ff;
   border-radius: 10px;
+  touch-action: none;
 }
 
 .sidebar {
@@ -68,7 +77,6 @@ body {
   color: #007acc;
 }
 
-
 #next {
   background: #f0f8ff;
   border: 2px solid #00e0ff;
@@ -94,6 +102,110 @@ body {
   transform: scale(1.05);
 }
 
+.controls button:active {
+  transform: scale(0.95);
+}
+
+.mobile-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  display: none;
+  z-index: 1000;
+}
+
+.mobile-controls.show {
+  display: block;
+}
+
+.mobile-button-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 15px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.mobile-btn {
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+.mobile-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.btn-left {
+  background: #ff6b6b;
+}
+
+.btn-right {
+  background: #4ecdc4;
+}
+
+.btn-rotate {
+  background: #45b7d1;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.btn-drop {
+  background: #f39c12;
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.btn-lock-scroll {
+  background: #e74c3c;
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+.btn-lock-scroll.locked {
+  background: #27ae60;
+}
+
+.btn-pause {
+  background: #9b59b6;
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.touch-hint {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  z-index: 2000;
+  display: none;
+}
+
+.touch-hint.show {
+  display: block;
+}
 
 footer {
   margin-top: 25px;
@@ -101,21 +213,20 @@ footer {
   color: #555;
 }
 
-
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .game-wrapper {
     flex-direction: column;
     align-items: center;
   }
 
   #tetris {
-    width: 180px;
-    height: 300px;
+    width: 240px;
+    height: 400px;
   }
 
   #next {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
   }
 
   .title {
@@ -126,31 +237,32 @@ footer {
     font-size: 0.9rem;
     padding: 8px 15px;
   }
-}
-.mobile-controls {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-}
 
-#dropBtn {
-  padding: 10px 20px;
-  font-size: 18px;
-  background-color: #00c2d1;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 0 10px #00c2d1;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-#dropBtn:active {
-  background-color: #0099aa;
-}
-
-@media (min-width: 768px) {
   .mobile-controls {
-    display: none;
+    display: block;
+  }
+
+  .container {
+    padding-bottom: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.8rem;
+  }
+
+  #tetris {
+    width: 200px;
+    height: 340px;
+  }
+
+  .sidebar {
+    padding: 15px;
+  }
+
+  .mobile-btn {
+    min-height: 50px;
+    font-size: 14px;
   }
 }
